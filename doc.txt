@@ -1,0 +1,13 @@
+Documentación de Proyecto
+------------------------------
+
+# request.POST: Es un diccionario que contiene los datos enviados al servidor a través del método HTTP POST.
+
+# user = User.objects.create(): Esto crea una nueva instancia de un modelo de usuario (User) y la almacena en la variable user. 
+    La variable User generalmente se refiere al modelo de usuario definido en Django para gestionar usuarios en la aplicación web.
+
+# user.save(): Guarda los datos de una instancia del modelo en la tabla correspondiente, permitiendo que el usuario sea registrado en la aplicación.
+
+# login(request, user): Se autentica al usuario en la aplicación. Esto implica crear una sesión para el usuario
+    lo que permite que el sistema lo reconozca en futuras solicitudes HTTP y le otorga acceso a contenido y funciones que requieren autenticación. 
+    Una vez que se llama a login(request, user), el usuario se considera "logueado" y puede acceder a las partes de la aplicación que están protegidas y requieren inicio de sesión.
