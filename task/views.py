@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
+
 
 def home(request):
     return render(request, "home.html")
+
 
 def signup(request):
     # Verifica si la solicitud es de tipo "GET"
@@ -17,27 +19,26 @@ def signup(request):
         if request.POST["password1"] == request.POST["password2"]:
             try:
                 # Intenta crear un nuevo usuario con los datos del formulario
-                user = User.objects.create(
+                user = User.objects.create_user(
                     username=request.POST["username"],
                     password=request.POST["password1"],
                 )
                 # Guarda el usuario en la base de datos
                 user.save()
-                
+
                 # Inicia sesión con el nuevo usuario
                 login(request, user)
-                
+
                 # Redirige al usuario a la página "task"
-                return redirect('task')
-            
+                return redirect("task")
+
             except:
                 # En caso de que haya un error al crear el usuario
                 # Muestra la página de registro nuevamente con un mensaje de error
                 return render(
                     request,
                     "signup.html",
-                    {"form": UserCreationForm,
-                     "error": "Username already exists"},
+                    {"form": UserCreationForm, "error": "Username already exists"},
                 )
 
         else:
@@ -46,13 +47,35 @@ def signup(request):
             return render(
                 request,
                 "signup.html",
-                {"form": UserCreationForm,
-                 "error": "Password do not match"},
+                {"form": UserCreationForm, "error": "Password do not match"},
             )
+
 
 def task(request):
     return render(request, "task.html")
 
+
 def signout(request):
     logout(request)
-    return redirect('home')
+    return redirect("home")
+
+
+def signin(request):
+    if request.method == "GET":
+        return render(request, "signin.html", {
+            "form": AuthenticationForm
+            })
+    else:
+        user = authenticate(
+            request,
+            username=request.POST['username'],
+            password=request.POST['password'],
+        )
+        if user is None:
+            return render(request, "signin.html", {
+                              "form": AuthenticationForm,
+                              "error" : "Username or password incorrect"
+                              })
+        else:
+            login(request, user)
+            return redirect("task")
