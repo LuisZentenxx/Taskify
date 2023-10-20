@@ -8,13 +8,15 @@
         <li>
             <a href="{% url 'task_detail' task.id %}">
                 {% if task.important %}
-                <strong>Titulo: {{task.title}}</strong>
-            {% else %}
-                {{task.title}}
-            {% endif %}
+                    <strong>Titulo: {{task.title}}</strong>
+                {% else %}
+                    {{task.title}}
+                {% endif %}
             
-           <p>Descripcion : {{task.description}}</p>
-           <p>Autor: {{task.user.username}}</p>
+                <p>Descripcion : {{task.description}}</p>
+                <p>Autor: {{task.user.username}}</p>
+
+                <p>{{task.datecompleted|date:'M j Y:i'}}</p>
             </a>
         </li>
     {% endfor %}

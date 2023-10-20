@@ -5,6 +5,7 @@ from django.contrib.auth import login, logout, authenticate
 from .forms import TaskForm
 from .models import Task
 from django.utils import timezone
+from django.contrib.auth.decorators import login_required
 
 
 def home(request):
@@ -53,11 +54,17 @@ def signup(request):
                 {"form": UserCreationForm, "error": "Password do not match"},
             )
 
-
+@login_required
 def tasks(request):
     tasks = Task.objects.filter(user=request.user, datecompleted__isnull=True)
     return render(request, "task.html", {'tasks': tasks})
 
+@login_required
+def tasks_completed(request):
+    tasks = Task.objects.filter(user=request.user, datecompleted__isnull=False).order_by('-datecompleted')
+    return render(request, "task.html", {'tasks': tasks})
+
+@login_required
 def create_task(request):
 
     if request.method == 'GET':
@@ -78,6 +85,7 @@ def create_task(request):
             'error' : 'Please provide valid date'
         })
 
+@login_required
 def task_detail(request, task_id):
     if request.method == 'GET':
         task = get_object_or_404(Task, pk=task_id, user=request.user)
@@ -94,6 +102,7 @@ def task_detail(request, task_id):
                                                         'form' : form,
                                                         'error' : 'Error updating task'})
 
+@login_required
 def task_complete(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
     if request.method == 'POST':
@@ -101,13 +110,14 @@ def task_complete(request, task_id):
         task.save()
         return redirect('tasks')
 
+@login_required
 def task_delete(request, task_id):
     task = get_object_or_404(Task, pk=task_id, user=request.user)
     if request.method == 'POST':
         task.delete()
         return redirect('tasks')
 
-
+@login_required
 def signout(request):
     logout(request)
     return redirect("home")
@@ -130,6 +140,5 @@ def signin(request):
                               })
         else:
             login(request, user)
-            return redirect("task")
+            return redirect("tasks")
         
-
