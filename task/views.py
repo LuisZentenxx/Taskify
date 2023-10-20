@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from .forms import TaskForm
 from .models import Task
+from django.utils import timezone
 
 
 def home(request):
@@ -79,14 +80,34 @@ def create_task(request):
 
 def task_detail(request, task_id):
     if request.method == 'GET':
-        task = get_object_or_404(Task, pk=task_id)
+        task = get_object_or_404(Task, pk=task_id, user=request.user)
         form = TaskForm(instance=task)
         return render(request, 'task_detail.html', {'task' : task, 'form' : form})
     else:
-        task = get_object_or_404(Task, pk=task_id)
-        form = TaskForm(request.POST, instance=task)
-        form.save()
+        try:
+            task = get_object_or_404(Task, pk=task_id, user=request.user)
+            form = TaskForm(request.POST, instance=task)
+            form.save()
+            return redirect('tasks')
+        except ValueError:
+            return render(request, 'task_detail.html', {'task' : task, 
+                                                        'form' : form,
+                                                        'error' : 'Error updating task'})
+
+def task_complete(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'POST':
+        task.datecompleted = timezone.now()
+        task.save()
         return redirect('tasks')
+
+def task_delete(request, task_id):
+    task = get_object_or_404(Task, pk=task_id, user=request.user)
+    if request.method == 'POST':
+        task.delete()
+        return redirect('tasks')
+
+
 def signout(request):
     logout(request)
     return redirect("home")
